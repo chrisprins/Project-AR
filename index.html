@@ -40,7 +40,34 @@
 
                     console.log("Heart Fixed at:", lat, lon);
 
-                    // Set 
+                    // Set fixed heart position
+                    document.getElementById("heart").setAttribute("gps-entity-place", 
+                        `latitude: ${lat}; longitude: ${lon}`);
+                },
+                function(error) {
+                    console.error("GPS access denied!", error);
+                    gpsDataDiv.innerHTML = "GPS access denied. Enable location services.";
+                },
+                { enableHighAccuracy: true, maximumAge: 0 }
+            );
+        } else {
+            gpsDataDiv.innerHTML = "Geolocation not supported on this browser.";
+        }
+    </script>
 
+    <!-- AR Scene -->
+    <a-scene embedded arjs gps-camera="minDistance: 5">
+        <!-- Fixed Heart in Front -->
+        <a-entity id="heart"
+            gps-entity-place="latitude: 0; longitude: 0" 
+            geometry="primitive: sphere; radius: 1.5"
+            material="color: red"
+            position="0 1.5 -2"  <!-- 2m in front, 1.5m above ground -->
+            look-at="[gps-camera]"> 
+        </a-entity>
 
+        <a-camera gps-camera rotation-reader></a-camera>
+    </a-scene>
 
+</body>
+</html>
