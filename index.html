@@ -3,44 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GPS AR - Floating Blue Box</title>
+    <title>GPS AR - Floating Box with Live Data</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://rawgit.com/jeromeetienne/AR.js/1.7.2/aframe/build/aframe-ar.min.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: Arial, sans-serif; }
+        #gps-data {
+            position: absolute; top: 10px; left: 10px; 
+            background: rgba(0, 0, 0, 0.7); color: white; padding: 10px;
+            border-radius: 5px; font-size: 14px;
+        }
+    </style>
 </head>
-<body style="margin: 0; overflow: hidden;">
+<body>
+
+    <!-- GPS Data Display -->
+    <div id="gps-data">Waiting for GPS data...</div>
 
     <script>
-        // Request GPS location access
+        // Get elements to display GPS data
+        const gpsDataDiv = document.getElementById("gps-data");
+
+        // Request GPS and Camera access
         if ("geolocation" in navigator) {
-            navigator.geolocation.getCurrentPosition(
+            navigator.geolocation.watchPosition(
                 function(position) {
-                    console.log("GPS Granted!");
-                    console.log("Your Latitude: " + position.coords.latitude);
-                    console.log("Your Longitude: " + position.coords.longitude);
+                    let lat = position.coords.latitude;
+                    let lon = position.coords.longitude;
+                    let accuracy = position.coords.accuracy;
+
+                    // Update GPS data on the page
+                    gpsDataDiv.innerHTML = `
+                        <b>GPS Location:</b><br>
+                        Latitude: ${lat.toFixed(6)}<br>
+                        Longitude: ${lon.toFixed(6)}<br>
+                        Accuracy: ±${accuracy.toFixed(1)} meters
+                    `;
+
+                    console.log("User GPS:", lat, lon);
                 },
                 function(error) {
                     console.error("GPS access denied!", error);
-                    alert("Please enable location services to see AR content.");
-                }
+                    gpsDataDiv.innerHTML = "GPS access denied. Please enable location services.";
+                },
+                { enableHighAccuracy: true, maximumAge: 0 }
             );
         } else {
-            alert("Geolocation is not supported by this browser.");
+            gpsDataDiv.innerHTML = "Geolocation is not supported on this browser.";
         }
     </script>
 
-    <a-scene embedded arjs gps-camera="minDistance: 10">
-        <!-- Large Blue Box 100m Above the Ground -->
+    <!-- AR Scene -->
+    <a-scene embedded arjs gps-camera="minDistance: 5">
+        <!-- Floating Blue Box (100m above the ground) -->
         <a-entity 
             gps-entity-place="latitude: -31.432070953718426; longitude: 152.91927960042875"
             geometry="primitive: box; width: 10; height: 10; depth: 10"
             material="color: blue"
-            position="0 30 0"> <!-- 100m altitude -->
+            position="0 100 0">
         </a-entity>
 
-        <!-- GPS Camera -->
+        <!-- Ground Marker (Red Sphere for GPS Debugging) -->
+        <a-entity 
+            gps-entity-place="latitude: -31.432070953718426; longitude: 152.91927960042875"
+            geometry="primitive: sphere; radius: 2"
+            material="color: red"
+            position="0 0 0">
+        </a-entity>
+
         <a-camera gps-camera rotation-reader></a-camera>
     </a-scene>
 
 </body>
 </html>
+
 
