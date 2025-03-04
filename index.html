@@ -3,20 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GPS-based AR with Altitude</title>
+    <title>GPS AR - Floating Blue Box</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://rawgit.com/jeromeetienne/AR.js/1.7.2/aframe/build/aframe-ar.min.js"></script>
 </head>
 <body style="margin: 0; overflow: hidden;">
 
+    <script>
+        // Request GPS location access
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    console.log("GPS Granted!");
+                    console.log("Your Latitude: " + position.coords.latitude);
+                    console.log("Your Longitude: " + position.coords.longitude);
+                },
+                function(error) {
+                    console.error("GPS access denied!", error);
+                    alert("Please enable location services to see AR content.");
+                }
+            );
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+    </script>
+
     <a-scene embedded arjs gps-camera="minDistance: 10">
-        <!-- AR Object at a specific height (altitude) -->
+        <!-- Large Blue Box 100m Above the Ground -->
         <a-entity 
-            gps-entity-place="latitude: -31.432070953718426; longitude: 152.91927960042875" 
-            geometry="primitive: box; height: 5; width: 5; depth: 5"
+            gps-entity-place="latitude: -31.432070953718426; longitude: 152.91927960042875"
+            geometry="primitive: box; width: 10; height: 10; depth: 10"
             material="color: blue"
-            position="0 20 0"> 
-            <!-- Adjust the 'y' value in position (0 Y 0) for altitude -->
+            position="0 100 0"> <!-- 100m altitude -->
         </a-entity>
 
         <!-- GPS Camera -->
@@ -25,3 +43,4 @@
 
 </body>
 </html>
+
